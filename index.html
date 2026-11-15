@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paket untuk Sekar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Mali:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f2f2a; --bg2:#14403a; --kraft:#c9975b; --kraft-d:#a8773f;
+  --ribbon:#e8486b; --ink:#fff4e2; --pill:rgba(10,32,28,.82);
+  --hand:'Caveat Brush','Segoe Print','Comic Sans MS',cursive;
+  --body:'Mali','Segoe Print',cursive;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
+.stage{position:relative;height:100%;display:grid;place-items:center;overflow:hidden}
+.gift{
+  appearance:none;border:0;background:none;cursor:pointer;padding:1rem;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;color:inherit;
+  transition:opacity .5s ease, transform .6s ease;
+}
+.gift svg{width:min(70vw,300px);height:auto;overflow:visible;filter:drop-shadow(0 18px 18px rgba(0,0,0,.35))}
+.gift:focus-visible{outline:3px dashed var(--ink);outline-offset:6px;border-radius:12px}
+.gift .lid{transform-box:fill-box;transform-origin:left bottom;transition:transform .7s cubic-bezier(.3,1.6,.5,1)}
+.gift:hover .lid{transform:translateY(-6px) rotate(-2deg)}
+.gift:hover svg{animation:wiggle .6s}
+.gift .hint{font-size:1rem;opacity:.75}
+@keyframes wiggle{25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
+.opened .gift{pointer-events:none}
+.opened .gift .lid{transform:translate(40px,-150px) rotate(24deg)}
+.opened .gift{opacity:0;transform:translateY(60px) scale(.9);transition-delay:.5s}
+.garden{position:absolute;inset:0;pointer-events:none}
+.flower{position:absolute;transform:translate(-50%,-50%) scale(0) rotate(-90deg);animation:bloom .9s cubic-bezier(.2,1.5,.4,1) forwards}
+.flower svg{width:100%;height:100%;display:block}
+@keyframes bloom{to{transform:translate(-50%,-50%) scale(1) rotate(var(--r))}}
+.msg{
+  position:absolute;inset:0;margin:auto;height:fit-content;width:fit-content;max-width:88vw;
+  text-align:center;background:var(--pill);padding:1.4rem 2.2rem;border-radius:28px;
+  opacity:0;transform:scale(.85);transition:opacity .8s ease 1.6s, transform .8s cubic-bezier(.2,1.4,.4,1) 1.6s;
+}
+.msg h1{margin:0;font:400 clamp(2.2rem,9vw,4.5rem)/1.1 var(--hand);color:var(--ink)}
+.msg p{margin:.4rem 0 0;font-size:1rem;opacity:.8}
+.opened .msg{opacity:1;transform:scale(1)}
+@media (prefers-reduced-motion:reduce){
+  .flower{animation-duration:.01s}
+  .gift,.gift .lid,.msg{transition-duration:.01s;transition-delay:0s}
+  .gift:hover svg{animation:none}
+}
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+  <div class="garden" id="garden" aria-hidden="true"></div>
+
+  <button class="gift" id="gift" aria-label="Buka paket untuk Sekar">
+    <svg viewBox="0 0 240 250" role="img" aria-hidden="true">
+      <rect x="30" y="100" width="180" height="130" rx="6" fill="#c9975b"/>
+      <rect x="30" y="100" width="180" height="22" fill="#a8773f" opacity=".35"/>
+      <rect x="108" y="100" width="24" height="130" fill="#e8486b"/>
+      <g class="lid">
+        <rect x="18" y="68" width="204" height="40" rx="6" fill="#d8a66a"/>
+        <rect x="108" y="68" width="24" height="40" fill="#e8486b"/>
+        <path d="M120 68 C90 20 50 40 80 62 Z" fill="#e8486b"/>
+        <path d="M120 68 C150 20 190 40 160 62 Z" fill="#e8486b"/>
+        <circle cx="120" cy="66" r="9" fill="#c43557"/>
+      </g>
+      <g transform="rotate(-4 120 170)">
+        <rect x="62" y="150" width="116" height="42" rx="5" fill="#fff4e2"/>
+        <circle cx="70" cy="160" r="3" fill="#a8773f"/>
+        <text x="124" y="177" text-anchor="middle" font-family="'Caveat Brush','Segoe Print',cursive" font-size="24" fill="#4a2f12">paket untuk Sekar</text>
+      </g>
+    </svg>
+    <span class="hint">ketuk untuk membuka</span>
+  </button>
+
+  <div class="msg" id="msg" role="status" aria-live="polite">
+    <h1>ini buat kamu, Sekar</h1>
+    <p>semoga harimu penuh bunga</p>
+  </div>
+</main>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage'),
+      gift=document.getElementById('gift'),
+      garden=document.getElementById('garden');
+  var colors=[['#ff7a93','#ffd35a'],['#ffd35a','#c43557'],['#fff4e2','#f2a33a'],['#ff9a5c','#fff4e2'],['#f7a6d0','#ffd35a'],['#8fd3c4','#fff4e2']];
+
+  function flower(c,petals){
+    var s='<svg viewBox="-50 -50 100 100">',i;
+    for(i=0;i<petals;i++){
+      s+='<ellipse cx="0" cy="-26" rx="13" ry="24" fill="'+c[0]+'" transform="rotate('+(i*360/petals)+')"/>';
+    }
+    s+='<circle r="13" fill="'+c[1]+'"/></svg>';
+    return s;
+  }
+
+  function bloom(){
+    var W=window.innerWidth,H=window.innerHeight,cols=W<600?5:9,rows=W<600?9:6,n=0;
+    var cw=W/cols,rh=H/rows;
+    for(var r=0;r<rows;r++){
+      for(var q=0;q<cols;q++){
+        var el=document.createElement('div'),size=60+Math.random()*70,
+            c=colors[Math.floor(Math.random()*colors.length)];
+        el.className='flower';
+        el.style.width=el.style.height=size+'px';
+        el.style.left=(q*cw+cw/2+(Math.random()-.5)*cw*.8)+'px';
+        el.style.top=(r*rh+rh/2+(Math.random()-.5)*rh*.8)+'px';
+        el.style.setProperty('--r',(Math.random()*120-60)+'deg');
+        el.style.animationDelay=(.5+Math.random()*1.4)+'s';
+        el.innerHTML=flower(c,5+Math.floor(Math.random()*4));
+        garden.appendChild(el);n++;
+      }
+    }
+  }
+
+  var done=false;
+  gift.addEventListener('click',function(){
+    if(done)return;done=true;
+    bloom();
+    stage.classList.add('opened');
+  });
+})();
+</script>
+</body>
+</html>
